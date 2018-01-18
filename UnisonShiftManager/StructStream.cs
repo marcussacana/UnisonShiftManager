@@ -193,36 +193,48 @@ namespace AdvancedBinary {
             foreach (FieldInfo field in fields) {
                 if (HasAttribute(field, Const.IGNORE))
                     continue;
-                switch (field.FieldType.ToString()) {
-                    case Const.INT8:
-                    case Const.UINT8:
-                        Length += 1;
-                        break;
-                    case Const.INT32:
-                    case Const.FLOAT:
-                    case Const.UINT32:
-                        Length += 4;
-                        break;
-                    case Const.UINT64:
-                    case Const.INT64:
-                    case Const.DOUBLE:
-                        Length += 8;
-                        break;
-                    case Const.STRING:
-                        if (!HasAttribute(field, Const.FSTRING))
-                            throw new Exception("You can't calculate struct length with strings");
-                        else
-                            Length += GetAttributePropertyValue(field, Const.FSTRING, "Length");
-                        break;
-                    default:
-                        if (field.FieldType.BaseType.ToString() == Const.DELEGATE)
-                            break;
-                        if (HasAttribute(field, Const.IGNORE))
-                            break;
-                        throw new Exception("Unk Struct Field: " + field.FieldType.ToString());
-                }
+                Length += GetFieldLength(field.FieldType.ToString(), field);
             }
             return Length;
+        }
+
+        private static long GetFieldLength(string Field, FieldInfo field) {
+            switch (Field) {
+                case Const.INT8:
+                case Const.UINT8:
+                    return 1;
+                case Const.INT32:
+                case Const.FLOAT:
+                case Const.UINT32:
+                    return 4;
+                case Const.UINT64:
+                case Const.INT64:
+                case Const.DOUBLE:
+                    return 8;
+                case Const.STRING:
+                    if (!HasAttribute(field, Const.FSTRING))
+                        throw new Exception("You can't calculate struct length with strings");
+                    else
+                        return GetAttributePropertyValue(field, Const.FSTRING, "Length");
+                default:
+                    if (field.FieldType.BaseType.ToString() == Const.DELEGATE)
+                        break;
+                    if (HasAttribute(field, Const.IGNORE))
+                        break;
+
+                    if (field.FieldType.ToString().EndsWith("[]")) {
+                        Field = Field.Substring(0, Field.Length - 2);
+
+                        if (!HasAttribute(field, Const.FARRAY))
+                            throw new Exception("You Can't Calculate the Length of Dynamic Arrays");
+
+                        return GetFieldLength(Field, field) * GetAttributePropertyValue(field, Const.FARRAY, "Length");
+                    }
+
+                    break;
+            }
+
+            throw new Exception("Unk Struct Field Type: " + Field);
         }
 
         internal static bool HasAttribute(FieldInfo Field, string Attrib) {

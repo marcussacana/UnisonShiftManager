@@ -55,16 +55,18 @@ namespace UnisonShiftManager {
 
             Writer.WriteStruct(ref Header);
 
+            uint TotalHeaderLen = (uint)((Tools.GetStructLength(new File()) * Files.Length) + Tools.GetStructLength(Header));
             for (uint i = 0, x = 0; i < Files.Length; i++) {
                 tmp = new File() {
                     FileName = Files[i].FileName,
                     Length = (uint)Files[i].Content.Length,
-                    Offset = x
+                    Offset = x + TotalHeaderLen
                 };
                 Writer.WriteStruct(ref tmp);
 
                 x += tmp.Length;
             }
+
 
             for (uint i = 0; i < Files.Length; i++) {
                 Files[i].Content.CopyTo(Writer.BaseStream);
@@ -78,7 +80,7 @@ namespace UnisonShiftManager {
                 Writer.Close();
         }
     }
-
+#pragma warning disable 169
     public struct PACHeader {
         [FString(Length = 4)]
         public string Signature;
@@ -100,4 +102,5 @@ namespace UnisonShiftManager {
         [Ignore]
         public Stream Content;
     }
+#pragma warning restore 169
 }

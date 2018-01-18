@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DAT.cs" />
     <Compile Include="PAC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StructStream.cs" />

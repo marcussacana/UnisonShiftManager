@@ -10,10 +10,32 @@ namespace UniPack {
         static void Main(string[] args) {
             if (args == null || args.Length == 0) {
                 Console.WriteLine("Usage:");
-                Console.WriteLine("Extract: {0} \"C:\\Sample.pak\"", Executable);
-                Console.WriteLine("Repack: {0} \"C:\\DirToPack\" \"C:\\NewPackget.pak\"", Executable);
+                Console.WriteLine("Extract: {0} \"C:\\Sample.pac\"", Executable);
+                Console.WriteLine("Repack: {0} \"C:\\DirToPack\" \"C:\\NewPackget.pac\"", Executable);
+                Console.WriteLine("Dump/Create Text.Dat: {0} \"C:\\Script.dat\"", Executable);
                 Console.ReadKey();
                 return;
+            }
+
+
+            if (args.Length == 1 && System.IO.File.Exists(args[0])) {
+                if (Path.GetExtension(args[0]).ToLower() == ".dat") {
+                    DAT Text = new DAT(System.IO.File.ReadAllBytes(args[0]));
+                    string[] Buffer = Text.Import();
+
+                    if (System.IO.File.Exists(args[0] + ".txt")) {
+                        string[] CNT = System.IO.File.ReadAllLines(args[0] + ".txt");
+                        for (int i = 0; i < Buffer.Length; i++)
+                            Buffer[i] = CNT[i];
+
+                        byte[] Script = Text.Export(Buffer);
+                        System.IO.File.WriteAllBytes(args[0] + ".new", Script);
+                    } else {
+                        System.IO.File.WriteAllLines(args[0] + ".txt", Buffer);
+                    }
+
+                    return;
+                }
             }
 
             if (args.Length == 1 && System.IO.File.Exists(args[0]))
