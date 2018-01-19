@@ -67,20 +67,19 @@ namespace UnisonShiftManager {
             const int HeaderSize = 0x10;
             int Missing = 4 - ((Script.Length + HeaderSize) % 4);
 
-            byte[] Result = new byte[(Script.Length - HeaderSize) + Missing];
+            byte[] Result = new byte[(Script.Length - HeaderSize)];
             for (int i = HeaderSize; i < Script.Length; i++) {
                 Result[i - HeaderSize] = Script[i];
             }           
 
 
-            for (int i = 0, Bits = 4; i < Result.Length; i += 4, Bits &= 7) {
+            for (int i = 0, Bits = 4; i < Result.Length - Missing; i += 4, Bits &= 7) {
                 Result[i] = RotateLeft(Result[i], (byte)Bits++);
 
                 uint DW = BitConverter.ToUInt32(Result, i);
                 BitConverter.GetBytes(((DW ^ 0x084DF873) ^ 0xFF987DEE)).CopyTo(Result, i);
             }
-
-            Array.Resize(ref Result, Result.Length - Missing);
+            
             return Result;
         }
 
@@ -89,7 +88,7 @@ namespace UnisonShiftManager {
             int Missing = 4 - ((Script.Length + HeaderSize) % 4);
 
 
-            byte[] Result = new byte[Script.Length + HeaderSize + Missing];
+            byte[] Result = new byte[Script.Length + HeaderSize];
             for (int i = 0; i < HeaderSize; i++) {
                 Result[i] = Content[i];
             }
@@ -99,14 +98,12 @@ namespace UnisonShiftManager {
             }
 
 
-            for (int i = HeaderSize, Bits = 4; i < Result.Length; i += 4, Bits &= 7) {
+            for (int i = HeaderSize, Bits = 4; i < Result.Length - Missing; i += 4, Bits &= 7) {
                 uint DW = BitConverter.ToUInt32(Result, i);
                 BitConverter.GetBytes(((DW ^ 0xFF987DEE) ^ 0x084DF873)).CopyTo(Result, i);
 
                 Result[i] = RotateRight(Result[i], (byte)Bits++);
             }
-
-            Array.Resize(ref Result, Result.Length - Missing);
             
             return Result;
         }
@@ -120,10 +117,12 @@ namespace UnisonShiftManager {
         }
     }
 
+#pragma warning disable 169
     internal struct Entry {
         uint ID;
 
         [CString]
         public string Content;
     }
+#pragma warning restore 169
 }

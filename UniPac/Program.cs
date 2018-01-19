@@ -25,6 +25,9 @@ namespace UniPack {
 
                     if (System.IO.File.Exists(args[0] + ".txt")) {
                         string[] CNT = System.IO.File.ReadAllLines(args[0] + ".txt");
+                        if (CNT.Length < Buffer.Length)
+                            return;
+
                         for (int i = 0; i < Buffer.Length; i++)
                             Buffer[i] = CNT[i];
 
