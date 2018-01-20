@@ -65,7 +65,7 @@ namespace UnisonShiftManager {
         private byte[] Decrypt(byte[] Script) {
             //Based on http://aluigi.altervista.org/bms/leyline_dat.bms
             const int HeaderSize = 0x10;
-            int Missing = 4 - ((Script.Length + HeaderSize) % 4);
+            int Missing = (Script.Length + HeaderSize) % 4;
 
             byte[] Result = new byte[(Script.Length - HeaderSize)];
             for (int i = HeaderSize; i < Script.Length; i++) {
@@ -85,7 +85,7 @@ namespace UnisonShiftManager {
 
         private byte[] Encrypt(byte[] Script) {
             const int HeaderSize = 0x10;
-            int Missing = 4 - ((Script.Length + HeaderSize) % 4);
+            int Missing = (Script.Length + HeaderSize) % 4;
 
 
             byte[] Result = new byte[Script.Length + HeaderSize];
