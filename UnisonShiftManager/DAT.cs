@@ -7,7 +7,10 @@ using System.Text;
 
 namespace UnisonShiftManager {
     public class DAT {
+
         public Encoding Encoding = Encoding.GetEncoding(932);
+                                 //Encoding.UTF8; //The Witchs Love Diary [EN]
+
         private List<Entry> Data;
         byte[] Content;
         public DAT(byte[] Script) {
@@ -18,7 +21,10 @@ namespace UnisonShiftManager {
             if (!EqualsAt(Content, new byte[] { 0x24, 0x54, 0x45, 0x58, 0x54, 0x5F, 0x4C, 0x49, 0x53, 0x54, 0x5F, 0x5F }, 0))
                 throw new Exception("Invalid DAT Text Signature");
 
-            byte[] Script = Decrypt(Content);
+            bool Decrypted = EqualsAt(Content, new byte[] { 0x00, 0x00, 0x00, 0x00 }, 0x10);
+
+            byte[] Script = Decrypted ? Content : Decrypt(Content);
+
             Data = new List<Entry>();
             using (Stream MEM = new MemoryStream(Script))
             using (StructReader Reader = new StructReader(MEM, Encoding: Encoding)) {
